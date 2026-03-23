@@ -20,9 +20,9 @@ if __name__ == "__main__":
      score = calculate_similarity(text_1, text_2)
 
      if score>80:
-        status =  "plagarised"
+        status =  "Plagarised"
      else:
-        status = "unplagrised"
+        status = "Unplagrised"
 
      return jsonify({
         "similarity" : score,
