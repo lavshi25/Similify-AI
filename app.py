@@ -22,7 +22,7 @@ if __name__ == "__main__":
      if score>80:
         status =  "Plagarised"
      else:
-        status = "Unplagrised"
+        status = "UnPlagrised"
 
      return jsonify({
         "similarity" : score,
