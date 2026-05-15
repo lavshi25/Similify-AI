@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Similify AI — Similarity Analyzer</title>
+
+  <!-- Google Fonts: no external JS, pure CSS link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Flask static CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Ambient background orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ── HEADER ─────────────────────────────────── -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.5" cy="11" r="5.5" stroke="url(#g1)" stroke-width="1.8"/>
+            <circle cx="14.5" cy="11" r="5.5" stroke="url(#g2)" stroke-width="1.8"/>
+            <defs>
+              <linearGradient id="g1" x1="2" y1="5" x2="13" y2="17" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818cf8"/>
+                <stop offset="1" stop-color="#38bdf8"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="9" y1="5" x2="20" y2="17" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="1" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-name">Similify <span class="logo-ai">AI</span></span>
+      </div>
+
+      <nav class="header-tags">
+        <span class="tag">TF-IDF</span>
+        <span class="tag">Cosine Similarity</span>
+        <span class="tag">Flask</span>
+        <span class="status-indicator">
+          <span class="status-dot"></span>
+          Live
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── MAIN ───────────────────────────────────── -->
+  <main class="main container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <p class="hero-overline">PLAGIARISM &amp; SIMILARITY DETECTION</p>
+      <h1 class="hero-title">
+        Detect. Compare.<br>
+        <span class="gradient-text">Understand Similarity.</span>
+      </h1>
+      <p class="hero-sub">
+        Paste two texts below — Similify AI uses TF-IDF vectorization and
+        cosine similarity to measure how alike they are, down to the sentence level.
+      </p>
+    </section>
+
+    <!-- Input Panel -->
+    <section class="input-panel">
+      <div class="input-grid">
+
+        <!-- Text 1 -->
+        <div class="textarea-wrap">
+          <div class="textarea-header">
+            <span class="textarea-label">
+              <span class="dot dot-blue"></span>
+              Source Text
+            </span>
+            <span class="char-count" id="count1">0 characters</span>
+          </div>
+          <textarea
+            id="text1"
+            class="textarea"
+            placeholder="Paste your original or source document here…"
+            spellcheck="false"
+          ></textarea>
+        </div>
+
+        <!-- Divider -->
+        <div class="vs-divider">
+          <div class="vs-line"></div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-line"></div>
+        </div>
+
+        <!-- Text 2 -->
+        <div class="textarea-wrap">
+          <div class="textarea-header">
+            <span class="textarea-label">
+              <span class="dot dot-purple"></span>
+              Comparison Text
+            </span>
+            <span class="char-count" id="count2">0 characters</span>
+          </div>
+          <textarea
+            id="text2"
+            class="textarea"
+            placeholder="Paste the text to compare against…"
+            spellcheck="false"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn-primary" id="analyzeBtn" onclick="runAnalysis()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1v3M8 12v3M1 8h3M12 8h3M2.93 2.93l2.12 2.12M10.95 10.95l2.12 2.12M13.07 2.93l-2.12 2.12M5.05 10.95l-2.12 2.12"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Analyze Similarity
+        </button>
+        <button class="btn-secondary" onclick="clearAll()">Clear All</button>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div class="loader" id="loader">
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+      <p class="loader-text" id="loaderText">Initializing…</p>
+    </div>
+
+    <!-- ── RESULTS ─────────────────────────────── -->
+    <section class="results" id="resultsSection">
+
+      <!-- Score Card -->
+      <div class="score-section">
+        <div class="score-card" id="result">
+          <p class="score-eyebrow">Overall Similarity Score</p>
+
+          <div class="score-ring-wrap">
+            <svg class="score-ring" viewBox="0 0 160 160">
+              <circle class="ring-track" cx="80" cy="80" r="66"/>
+              <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="66"/>
+            </svg>
+            <div class="score-center">
+              <span class="score-num" id="scoreNum">0</span>
+              <span class="score-pct">%</span>
+            </div>
+          </div>
+
+          <div class="score-bar-wrap">
+            <div class="score-bar-track">
+              <div class="score-bar-fill" id="scoreBarFill"></div>
+            </div>
+          </div>
+
+          <p class="score-verdict" id="scoreVerdict">—</p>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="statW1">—</span>
+            <span class="stat-label">Words (Text 1)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statW2">—</span>
+            <span class="stat-label">Words (Text 2)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statPairs">—</span>
+            <span class="stat-label">Sentence Pairs</span>
+          </div>
+          <div class="stat-card highlight">
+            <span class="stat-value" id="statHigh">—</span>
+            <span class="stat-label">High Matches</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentence-level Breakdown -->
+      <div class="breakdown">
+        <div class="breakdown-header">
+          <h2 class="breakdown-title">Sentence-Level Analysis</h2>
+          <div class="legend">
+            <span class="legend-item"><span class="legend-pip high"></span>High ≥70%</span>
+            <span class="legend-item"><span class="legend-pip med"></span>Medium 40–69%</span>
+            <span class="legend-item"><span class="legend-pip low"></span>Low &lt;40%</span>
+          </div>
+        </div>
+        <div class="match-list" id="matchList"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Similify AI &nbsp;·&nbsp; Built with Flask + TF-IDF</span>
+      <span>Internship Project Demo</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
