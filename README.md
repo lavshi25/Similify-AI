@@ -25,3 +25,9 @@ An NLP-based document similarity analyzer that compares two text documents using
 3. TF-IDF vectors are generated.
 4. Cosine similarity is calculated.
 5. Similarity percentage is displayed.
+
+ ## Screenshots
+
+### Home Page
+
+![Similify AI Home](screenshots/homepage.png)
